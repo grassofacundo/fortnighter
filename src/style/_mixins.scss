@@ -1,0 +1,14 @@
+@mixin buttonMixin(
+    $horizontalPadding: 5px,
+    $verticalPadding: 10px,
+    $bgColor: #e9e9ff,
+    $borderColor: blue,
+    $borderRadius: 5px,
+    $width: fit-content
+) {
+    padding: $verticalPadding $verticalPadding;
+    background-color: $bgColor;
+    border-color: $borderColor;
+    border-radius: $borderRadius;
+    width: $width;
+}

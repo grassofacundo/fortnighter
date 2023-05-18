@@ -12,7 +12,7 @@ const Login: React.FC<LoginProps> = ({ onSetLogIn }) => {
     const [returnedUser, setReturnedUser] = useState<Auth | null>(null);
 
     function handleAnimationEnd(): void {
-        const welcomeSign = document.getElementById("welcomeSign");
+        //const welcomeSign = document.getElementById("welcomeSign");
         const auth = getAuth();
         setReturnedUser(auth);
     }
@@ -23,7 +23,10 @@ const Login: React.FC<LoginProps> = ({ onSetLogIn }) => {
         signOut(returnedUser)
             .then(() => {
                 setReturnedUser(null);
-                setReturnedUser(getAuth());
+                onSetLogIn(false);
+                setTimeout(() => {
+                    handleAnimationEnd();
+                }, 1000);
             })
             .catch((error) => {
                 console.log(error);
@@ -39,7 +42,7 @@ const Login: React.FC<LoginProps> = ({ onSetLogIn }) => {
                 setReturnedUser(auth);
                 // ...
             } else {
-                console.log("Que pasa aca");
+                console.log("what's up");
                 // User is signed out
                 // ...
             }
@@ -52,23 +55,37 @@ const Login: React.FC<LoginProps> = ({ onSetLogIn }) => {
     return (
         <div className={styles.logInContainer}>
             <div className={styles.welcomeContainer}>
-                <p
-                    id="welcomeSign"
-                    className={styles.welcomeSign}
-                    onAnimationEnd={handleAnimationEnd}
-                >
-                    Welcome
-                </p>
-                {!isLoading && returningUser && (
-                    <p id="welcomeBackSign" className={styles.welcomeBackSign}>
-                        {", back"}
+                <div>
+                    <p
+                        id="welcomeSign"
+                        className={styles.welcomeSign}
+                        onAnimationEnd={handleAnimationEnd}
+                    >
+                        Welcome
                     </p>
+                    {!isLoading && returningUser && (
+                        <p
+                            id="welcomeBackSign"
+                            className={styles.welcomeBackSign}
+                        >
+                            {`, back ${returningUser.email}`}
+                        </p>
+                    )}
+                </div>
+                {!isLoading && returningUser && (
+                    <button
+                        className={styles.logInButton}
+                        onClick={() => onSetLogIn(true)}
+                    >
+                        {"Thank you!"}
+                    </button>
                 )}
             </div>
 
             {!isLoading && returningUser && (
                 <button
                     onClick={handleLogOut}
+                    className={styles.logOutButton}
                 >{`Not ${returningUser.email}? Log out`}</button>
             )}
             {!isLoading && !returningUser && (

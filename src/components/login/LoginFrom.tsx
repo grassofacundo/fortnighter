@@ -4,6 +4,7 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
 } from "firebase/auth";
+import styles from "./Login.module.scss";
 
 type LoginFormProps = {
     onSetLogIn: Dispatch<SetStateAction<boolean>>;
@@ -80,7 +81,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSetLogIn }) => {
     }
 
     return (
-        <div>
+        <div className={styles.loginFormContainer}>
             {emailSubmitted && (
                 <button onClick={() => setIsNew((prevState) => !prevState)}>
                     {isNew

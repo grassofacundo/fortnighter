@@ -1,5 +1,8 @@
+@use "./placeholders";
+@use "./colors";
+
 * {
-    contain: content;
+    box-sizing: border-box;
 }
 
 html,
@@ -16,14 +19,17 @@ body,
 #root {
     display: flex;
     justify-content: center;
+    //background-color: #e1e1e1;
+    background-color: colors.$mainColor;
+}
+
+button,
+input {
+    width: fit-content;
 }
 
 button {
-    width: fit-content;
-    background-color: #e9e9ff;
-    padding: 5px 10px;
-    border-color: blue;
-    border-radius: 5px;
+    @extend %plain-button;
 }
 
 button:hover {
