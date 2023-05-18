@@ -1,0 +1,32 @@
+* {
+    contain: content;
+}
+
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    min-width: 100vw;
+    min-height: 100vh;
+}
+
+#root {
+    display: flex;
+    justify-content: center;
+}
+
+button {
+    width: fit-content;
+    background-color: #e9e9ff;
+    padding: 5px 10px;
+    border-color: blue;
+    border-radius: 5px;
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: #cfcff3;
+}

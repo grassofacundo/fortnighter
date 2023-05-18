@@ -1,0 +1,47 @@
+.logInContainer {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 15%;
+    width: 500px;
+    height: 100%;
+
+    button {
+        opacity: 0;
+        animation: 500ms ease-in-out slideUp forwards;
+        animation-delay: 250ms;
+    }
+}
+
+.welcomeContainer {
+    width: 100%;
+    margin-bottom: 15%;
+
+    .welcomeSign,
+    .welcomeBackSign {
+        width: fit-content;
+        display: inline-block;
+        font-size: x-large;
+        color: blue;
+        font-weight: bold;
+        opacity: 0;
+        animation: 1s ease-in-out slideUp forwards;
+    }
+
+    .welcomeBackSign {
+        animation-duration: 500ms;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateX(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
