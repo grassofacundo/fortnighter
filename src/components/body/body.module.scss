@@ -1,7 +1,11 @@
-.whiteBg {
-    background-color: white;
-}
+.mainBody {
+    width: 100%;
 
-.blackBg {
-    background-color: black;
+    &.whiteBg {
+        background-color: white;
+    }
+
+    &.blackBg {
+        background-color: black;
+    }
 }
