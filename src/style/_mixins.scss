@@ -1,14 +1,26 @@
 @mixin buttonMixin(
     $horizontalPadding: 5px,
     $verticalPadding: 10px,
-    $bgColor: #e9e9ff,
-    $borderColor: blue,
+    $bgColor: var(--bgColor),
+    $borderColor: var(--contrastColor),
     $borderRadius: 5px,
-    $width: fit-content
+    $width: fit-content,
+    $textColor: var(--textColor)
 ) {
     padding: $verticalPadding $verticalPadding;
+    margin: 0.5em;
     background-color: $bgColor;
-    border-color: $borderColor;
-    border-radius: $borderRadius;
+    box-shadow: 0px 0px 0px 1px $borderColor;
+    border: {
+        radius: $borderRadius;
+        width: 0;
+    }
     width: $width;
+    color: $textColor;
+    transition: box-shadow 0.2s linear;
+
+    &:hover {
+        cursor: pointer;
+        box-shadow: 0px 0px 0px 3px;
+    }
 }

@@ -1,17 +1,17 @@
-import { useContext } from "react";
-import { dbContext } from "../App";
+/*import { useContext } from "react";
+import { dbContext } from "../App";*/
 
 type TimetableProps = {
     days: Array<Date>;
 };
 
 const Timetable: React.FC<TimetableProps> = ({ days }) => {
-    const dbCtx = useContext(dbContext);
+    //const dbCtx = useContext(dbContext);
 
     return (
         <div>
             {days.map((day, index) => (
-                <button onClick={() => dbCtx.db.createDate(day)} key={index}>
+                <button onClick={() => {}} key={`${index}-${day}`}>
                     work day
                 </button>
             ))}

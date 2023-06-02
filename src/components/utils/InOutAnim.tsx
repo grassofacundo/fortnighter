@@ -4,35 +4,30 @@ import { Transition } from "react-transition-group";
 type thisProps = {
     inState: boolean;
     children: ReactNode;
+    unmountOnExit?: boolean;
+    customClass?: CSSModuleClasses[string];
 };
 
 const duration = 300;
 
-/*const defaultStyle = {
-    transition: `opacity ${duration}ms ease-in-out`,
-    opacity: 0,
-};*/
-
-/*const transitionStyles = {
-    entering: { opacity: 1 },
-    entered: { opacity: 1 },
-    exiting: { opacity: 0 },
-    exited: { opacity: 0 },
-};*/
-
-const InOutAnim: FunctionComponent<thisProps> = ({ inState, children }) => {
+const InOutAnim: FunctionComponent<thisProps> = ({
+    inState,
+    children,
+    unmountOnExit = true,
+    customClass,
+}) => {
     const nodeRef = useRef(null);
     return (
         <Transition
             nodeRef={nodeRef}
             in={inState}
             timeout={duration}
-            unmountOnExit={true}
+            unmountOnExit={unmountOnExit}
         >
             {(state) => (
                 <div
                     ref={nodeRef}
-                    className={`inOut-${state} inOut`}
+                    className={`inOut-${state} inOut ${customClass}`}
                     style={{
                         transitionDuration: `${duration}ms`,
                     }}

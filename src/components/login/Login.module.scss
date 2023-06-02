@@ -1,43 +1,10 @@
-.logInContainer {
+.loginContainer {
     display: flex;
-    justify-content: flex-start;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    background-color: #fff;
-    padding: 15px;
-    width: 500px;
+    width: 100%;
     height: 100%;
-
-    .logOutButton,
-    .logInButton {
-        opacity: 0;
-        animation: 500ms ease-in-out slideUp forwards;
-        animation-delay: 250ms;
-    }
-}
-
-.welcomeContainer {
-    width: 100%;
-    margin-bottom: 50px;
-
-    .welcomeSign,
-    .welcomeBackSign {
-        width: fit-content;
-        display: inline-block;
-        font-size: x-large;
-        color: blue;
-        font-weight: bold;
-        opacity: 0;
-        animation: 1s ease-in-out slideUp forwards;
-    }
-
-    .welcomeBackSign {
-        animation-duration: 500ms;
-    }
-}
-
-.loginFormContainer {
-    width: 100%;
 
     form {
         display: flex;

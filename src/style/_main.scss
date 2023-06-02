@@ -1,9 +1,25 @@
 @use "./placeholders";
 @use "./colors";
+@use "./fonts";
 @import "./transition";
 
 * {
     box-sizing: border-box;
+
+    @media (prefers-color-scheme: dark) {
+        --bgColor: #{colors.$bgColor-dark};
+        --mainColor: #{colors.$mainColor-dark};
+        --textColor: #{colors.$textColor-dark};
+
+        --contrastColor: #{colors.$contrastColor-dark};
+    }
+
+    @media (prefers-color-scheme: light) {
+        --bgColor: #{colors.$bgColor-light};
+        --mainColor: #{colors.$mainColor-light};
+        --textColor: #{colors.$textColor-light};
+        --contrastColor: #{colors.$contrastColor-light};
+    }
 }
 
 html,
@@ -20,21 +36,13 @@ body,
 #root {
     display: flex;
     justify-content: center;
-    //background-color: #e1e1e1;
-    background-color: colors.$mainColor;
-    max-width: 1024px;
+    background-color: var(--bgColor);
 }
 
-button,
 input {
     width: fit-content;
 }
 
 button {
     @extend %plain-button;
-}
-
-button:hover {
-    cursor: pointer;
-    background-color: #cfcff3;
 }

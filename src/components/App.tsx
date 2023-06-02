@@ -1,23 +1,41 @@
-import { createContext, useState } from "react";
-import "./App.css";
+import { useState, FunctionComponent, useEffect, useContext } from "react";
 import Body from "./body/body";
-import DbClass from "../services/dbService";
 import Login from "./login/Login";
+import WelcomeAnimation from "./blocks/welcomeAnimation/WelcomeAnimation";
+import styles from "./App.module.scss";
+import InOutAnim from "./utils/InOutAnim";
+import AuthContext, { UserProvider } from "./contexts/AuthContext";
 
-type AppProps = {};
-
-export const dbContext = createContext<any>(null);
-const dbContextValue = {
-    db: new DbClass(),
-};
-
-const App: React.FC<AppProps> = () => {
+const App: FunctionComponent = () => {
+    const currentUser = useContext(AuthContext);
     const [logIn, setLogIn] = useState<boolean>(false);
+    const [animationEnded, setAnimationEnded] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (logIn && !currentUser) setLogIn(false);
+    }, [currentUser, logIn]);
 
     return (
-        <dbContext.Provider value={dbContextValue}>
-            {logIn ? <Body /> : <Login onSetLogIn={setLogIn} />}
-        </dbContext.Provider>
+        <UserProvider>
+            <div className={styles.appContainer}>
+                {!logIn && (
+                    <>
+                        <WelcomeAnimation
+                            fullText="Fortnighter"
+                            onSetAnimationEnded={setAnimationEnded}
+                        />
+                        <InOutAnim
+                            inState={animationEnded}
+                            unmountOnExit={false}
+                            customClass={styles.loginWrapper}
+                        >
+                            <Login onLogIn={setLogIn} />
+                        </InOutAnim>
+                    </>
+                )}
+                {logIn && animationEnded && <Body />}
+            </div>
+        </UserProvider>
     );
 };
 
