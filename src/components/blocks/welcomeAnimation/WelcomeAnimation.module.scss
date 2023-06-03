@@ -4,11 +4,11 @@
     align-items: center;
     height: 100%;
     width: 100%;
-    background-color: black;
+    background-color: var(--mainColor);
 
     p {
         display: inline-block;
-        color: white;
+        color: var(--textColor);
         opacity: 0;
         transform: translateY(30px);
         font-family: "monomaniac_oneregular";

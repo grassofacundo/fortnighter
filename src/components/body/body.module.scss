@@ -1,11 +1,4 @@
 .mainBody {
     width: 100%;
-
-    &.whiteBg {
-        background-color: white;
-    }
-
-    &.blackBg {
-        background-color: black;
-    }
+    background-color: var(--mainColor);
 }

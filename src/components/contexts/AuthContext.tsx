@@ -25,6 +25,11 @@ export const UserProvider: FunctionComponent<thisProps> = ({ children }) => {
         authService.getAuthState(setCurrentUser);
     }, []);
 
+    useEffect(() => {
+        console.log("Updated currentUser");
+        console.log(currentUser);
+    }, [currentUser]);
+
     return (
         <AuthContext.Provider value={currentUser}>
             {children}

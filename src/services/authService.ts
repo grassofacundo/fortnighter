@@ -64,7 +64,7 @@ class AuthService {
     }
 
     logOut() {
-        console.log("Logging out");
+        auth.signOut();
     }
 
     getAuthState(onStateChange: Dispatch<SetStateAction<User | null>>): void {

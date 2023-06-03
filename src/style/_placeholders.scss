@@ -1,5 +1,15 @@
 @use "./mixins";
 
-%plain-button {
+%normal-button {
     @include mixins.buttonMixin;
+}
+
+%text-button {
+    @include mixins.buttonMixin($bgColor: transparent);
+    box-shadow: unset;
+
+    &:hover {
+        box-shadow: unset;
+        text-decoration: underline;
+    }
 }

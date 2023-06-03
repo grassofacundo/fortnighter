@@ -5,21 +5,6 @@
 
 * {
     box-sizing: border-box;
-
-    @media (prefers-color-scheme: dark) {
-        --bgColor: #{colors.$bgColor-dark};
-        --mainColor: #{colors.$mainColor-dark};
-        --textColor: #{colors.$textColor-dark};
-
-        --contrastColor: #{colors.$contrastColor-dark};
-    }
-
-    @media (prefers-color-scheme: light) {
-        --bgColor: #{colors.$bgColor-light};
-        --mainColor: #{colors.$mainColor-light};
-        --textColor: #{colors.$textColor-light};
-        --contrastColor: #{colors.$contrastColor-light};
-    }
 }
 
 html,
@@ -34,15 +19,40 @@ body,
 }
 
 #root {
+    //Set dark variables
+    --bgColor-dark: #{colors.$bgColor-dark};
+    --mainColor-dark: #{colors.$mainColor-dark};
+    --textColor-dark: #{colors.$textColor-dark};
+    --contrastColor-dark: #{colors.$contrastColor-dark};
+
+    //Set light variables
+    --bgColor-light: #{colors.$bgColor-light};
+    --mainColor-light: #{colors.$mainColor-light};
+    --textColor-light: #{colors.$textColor-light};
+    --contrastColor-light: #{colors.$contrastColor-light};
+    @media (prefers-color-scheme: dark) {
+        --bgColor: var(--bgColor-dark);
+        --mainColor: var(--mainColor-dark);
+        --textColor: var(--textColor-dark);
+        --contrastColor: var(--contrastColor-dark);
+    }
+
+    @media (prefers-color-scheme: light) {
+        --bgColor: var(--bgColor-light);
+        --mainColor: var(--mainColor-light);
+        --textColor: var(--textColor-light);
+        --contrastColor: var(--contrastColor-light);
+    }
+
     display: flex;
     justify-content: center;
     background-color: var(--bgColor);
 }
 
-input {
-    width: fit-content;
+p {
+    color: var(--textColor);
 }
 
 button {
-    @extend %plain-button;
+    @extend %normal-button;
 }

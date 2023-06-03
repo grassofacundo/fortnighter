@@ -25,6 +25,12 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
 
+    function handleNewUser() {
+        setIsRegisteredUser(false);
+        setIsReturningUser(false);
+        authService.logOut();
+    }
+
     function handleEmailChange(email: string): void {
         if (emailSubmitted) setEmailSubmitted(false);
         setEmail(email);
@@ -43,10 +49,6 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>): void {
         event.preventDefault();
-
-        if (isReturningUser) {
-            onLogIn(true);
-        }
 
         if (!emailSubmitted && validEmail(email)) {
             setError("");
@@ -76,9 +78,7 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
     }
 
     function getSubmitButtonText(): string {
-        if (isReturningUser) {
-            return "Thank you!";
-        } else if (!emailSubmitted) {
+        if (!emailSubmitted) {
             return "Submit email";
         } else if (emailSubmitted && isRegisteredUser) {
             return "Log in";
@@ -93,7 +93,19 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
 
     return (
         <div className={styles.loginContainer}>
-            {emailSubmitted && (
+            {isReturningUser && currentUser?.email && (
+                <div className={styles.returningUserForm}>
+                    <p>{`Welcome back ${currentUser.email}!`}</p>
+                    <button onClick={() => onLogIn(true)}>
+                        {"Thank you!"}
+                    </button>
+                    <button onClick={handleNewUser}>
+                        {`I'm not ${currentUser.email}`}
+                    </button>
+                </div>
+            )}
+
+            {!isReturningUser && emailSubmitted && (
                 <button
                     onClick={() =>
                         setIsRegisteredUser((prevState) => !prevState)
@@ -104,39 +116,31 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
                         : "I'm a registered user"}
                 </button>
             )}
-            {isReturningUser && currentUser?.email && (
-                <button
-                    onClick={() => {
-                        setIsRegisteredUser(false);
-                        setIsReturningUser(false);
-                        authService.logOut();
-                    }}
-                >
-                    {`I'm not ${currentUser.email}`}
-                </button>
+
+            {!isReturningUser && (
+                <form onSubmit={handleSubmit}>
+                    {!isReturningUser && (
+                        <input
+                            type="mail"
+                            placeholder="email"
+                            onChange={(e) => handleEmailChange(e.target.value)}
+                        ></input>
+                    )}
+                    {!isReturningUser && emailSubmitted && (
+                        <input
+                            type="password"
+                            placeholder="password"
+                            onChange={(e) => setPassword(e.target.value)}
+                        ></input>
+                    )}
+                    <button
+                        type="submit"
+                        disabled={!isReturningUser && !validEmail(email)}
+                    >
+                        {getSubmitButtonText()}
+                    </button>
+                </form>
             )}
-            <form onSubmit={handleSubmit}>
-                {!isReturningUser && (
-                    <input
-                        type="mail"
-                        placeholder="email"
-                        onChange={(e) => handleEmailChange(e.target.value)}
-                    ></input>
-                )}
-                {!isReturningUser && emailSubmitted && (
-                    <input
-                        type="password"
-                        placeholder="password"
-                        onChange={(e) => setPassword(e.target.value)}
-                    ></input>
-                )}
-                <button
-                    type="submit"
-                    disabled={!isReturningUser && !validEmail(email)}
-                >
-                    {getSubmitButtonText()}
-                </button>
-            </form>
             {error && <p>{error}</p>}
         </div>
     );
