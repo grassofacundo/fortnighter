@@ -6,6 +6,7 @@ type thisProps = {
     children: ReactNode;
     unmountOnExit?: boolean;
     customClass?: CSSModuleClasses[string];
+    onExitEvent?: any;
 };
 
 const duration = 300;
@@ -15,6 +16,7 @@ const InOutAnim: FunctionComponent<thisProps> = ({
     children,
     unmountOnExit = true,
     customClass,
+    onExitEvent = () => {},
 }) => {
     const nodeRef = useRef(null);
     return (
@@ -23,6 +25,7 @@ const InOutAnim: FunctionComponent<thisProps> = ({
             in={inState}
             timeout={duration}
             unmountOnExit={unmountOnExit}
+            onExited={onExitEvent}
         >
             {(state) => (
                 <div
