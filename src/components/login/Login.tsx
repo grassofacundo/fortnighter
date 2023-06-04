@@ -9,6 +9,8 @@ import {
 import styles from "./Login.module.scss";
 import AuthContext from "../contexts/AuthContext";
 import authService from "../../services/authService";
+import InOutAnim from "../utils/InOutAnim";
+import Spinner from "../blocks/spinner/Spinner";
 
 type LoginProps = {
     onLogIn: Dispatch<SetStateAction<boolean>>;
@@ -17,17 +19,22 @@ type LoginProps = {
 const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
     const currentUser = useContext(AuthContext);
 
-    const userIsBack = currentUser !== null;
-    const [isRegisteredUser, setIsRegisteredUser] = useState<boolean>(false);
-    const [isReturningUser, setIsReturningUser] = useState<boolean>(userIsBack);
+    const [isReturningUser, setIsReturningUser] = useState<boolean>(
+        !!currentUser
+    );
+    const [isRegisteredUser, setIsRegisteredUser] = useState<boolean>(true);
     const [email, setEmail] = useState<string>("");
     const [emailSubmitted, setEmailSubmitted] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
-    const [error, setError] = useState<string>("");
+
+    const [error, setError] = useState<boolean>(false);
+    const [errorText, setErrorText] = useState<string>("");
+    const [Loading, setLoading] = useState<boolean>(false);
 
     function handleNewUser() {
         setIsRegisteredUser(false);
         setIsReturningUser(false);
+        onLogIn(false);
         authService.logOut();
     }
 
@@ -47,11 +54,20 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
         );
     }
 
-    function handleSubmit(event: React.FormEvent<HTMLFormElement>): void {
+    async function handleSubmit(
+        event: React.FormEvent<HTMLFormElement>
+    ): Promise<void> {
         event.preventDefault();
 
+        if (!validEmail(email)) {
+            const errorMessage = "Email doesn't have the correct format";
+            const erroredFieldType = "mail";
+            handleError(false, { erroredFieldType, errorMessage });
+            return;
+        }
+
         if (!emailSubmitted && validEmail(email)) {
-            setError("");
+            handleError(true);
             setEmailSubmitted(true);
             return;
         }
@@ -60,21 +76,72 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
             /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
         if (!isRegisteredUser && !passRegex.test(password)) {
-            setError(
-                "Password must contain 1 lowercase, 1 uppercase, 1 special character and be at least 8 characters long"
-            );
+            const errorMessage =
+                "Password must contain 1 lowercase, 1 uppercase, 1 special character and be at least 8 characters long";
+            const erroredFieldType = "password";
+            handleError(false, { erroredFieldType, errorMessage });
             return;
         }
 
         if (emailSubmitted && validEmail(email)) {
             if (!isRegisteredUser) {
-                authService.createUser(email, password);
-                onLogIn(true);
+                setLoading(true);
+                const response = await authService.createUser({
+                    username: email,
+                    password,
+                    callback: () => onLogIn(true),
+                });
+                setLoading(false);
+                if (!response.ok) {
+                    const errorMessage = response.errorMessage;
+                    const erroredFieldType = "mail";
+                    handleError(response.ok, {
+                        erroredFieldType,
+                        errorMessage,
+                    });
+                }
             } else {
-                authService.logIn(email, password);
-                onLogIn(true);
+                setLoading(true);
+                const response = await authService.logIn({
+                    username: email,
+                    password,
+                    callback: () => onLogIn(true),
+                });
+                setLoading(false);
+                if (!response.ok) {
+                    const errorMessage = response.errorMessage;
+                    const erroredFieldType = "mail";
+                    handleError(response.ok, {
+                        erroredFieldType,
+                        errorMessage,
+                    });
+                }
             }
         }
+    }
+
+    function handleError(
+        clearError: boolean,
+        error?: { erroredFieldType: string; errorMessage: string }
+    ) {
+        if (clearError) setError(false);
+
+        if (!error?.erroredFieldType || !error?.errorMessage) return;
+        const { erroredFieldType, errorMessage } = error;
+        const errorInput = document.querySelector(`[type=${erroredFieldType}]`);
+        if (!errorInput) return;
+        //Get input position
+        const { offsetTop, offsetWidth, offsetHeight } = errorInput as any;
+        const top = offsetTop - offsetHeight / 2 - 10;
+        const right = offsetWidth - 10;
+
+        const loginContainer = document.querySelector("#loginContainer") as any;
+        if (!loginContainer) return;
+        loginContainer.style.setProperty("--errorTop", `${top}px`);
+        loginContainer.style.setProperty("--errorRight", `${right}px`);
+
+        setErrorText(errorMessage);
+        setError(true);
     }
 
     function getSubmitButtonText(): string {
@@ -92,7 +159,7 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
     }, [currentUser]);
 
     return (
-        <div className={styles.loginContainer}>
+        <div id="loginContainer" className={styles.loginContainer}>
             {isReturningUser && currentUser?.email && (
                 <div className={styles.returningUserForm}>
                     <p>{`Welcome back ${currentUser.email}!`}</p>
@@ -107,13 +174,14 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
 
             {!isReturningUser && emailSubmitted && (
                 <button
-                    onClick={() =>
-                        setIsRegisteredUser((prevState) => !prevState)
-                    }
+                    onClick={() => {
+                        setIsRegisteredUser((prevState) => !prevState);
+                        handleError(true);
+                    }}
                 >
                     {isRegisteredUser
                         ? "I don't have an account yet"
-                        : "I'm a registered user"}
+                        : "I have an account"}
                 </button>
             )}
 
@@ -123,25 +191,33 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
                         <input
                             type="mail"
                             placeholder="email"
-                            onChange={(e) => handleEmailChange(e.target.value)}
+                            onChange={(e) => {
+                                handleEmailChange(e.target.value);
+                                handleError(true);
+                            }}
                         ></input>
                     )}
                     {!isReturningUser && emailSubmitted && (
                         <input
                             type="password"
                             placeholder="password"
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => {
+                                setPassword(e.target.value);
+                                handleError(true);
+                            }}
                         ></input>
                     )}
-                    <button
-                        type="submit"
-                        disabled={!isReturningUser && !validEmail(email)}
-                    >
-                        {getSubmitButtonText()}
+                    <button type="submit">
+                        {Loading ? <Spinner /> : getSubmitButtonText()}
                     </button>
                 </form>
             )}
-            {error && <p>{error}</p>}
+
+            <InOutAnim inState={error} customClass={styles.errorMessageWrapper}>
+                <div className={styles.errorPorUp}>
+                    <p className={styles.message}>{errorText}</p>
+                </div>
+            </InOutAnim>
         </div>
     );
 };

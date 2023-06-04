@@ -46,9 +46,8 @@ const Landing: FunctionComponent = () => {
                     <button
                         className={styles.logOutButton}
                         style={{ opacity: logIn ? "1" : "0" }}
-                        onClick={() => {
-                            if (toggleTheme) toggleTheme();
-                        }}
+                        disabled={!logIn}
+                        onClick={() => authService.logOut()}
                     >
                         Log out
                     </button>
@@ -56,7 +55,9 @@ const Landing: FunctionComponent = () => {
                         className={`${styles.themeButton} ${
                             theme === "dark" ? styles.inverted : ""
                         }`}
-                        onClick={() => authService.logOut()}
+                        onClick={() => {
+                            if (toggleTheme) toggleTheme();
+                        }}
                     ></button>
                 </footer>
             )}

@@ -9,6 +9,17 @@ import {
 } from "firebase/auth";
 import { Dispatch, SetStateAction } from "react";
 
+interface AuthParams {
+    username: string;
+    password: string;
+    callback?: SetStateAction<any>;
+}
+interface AuthEventReturn {
+    ok: boolean;
+    errorMessage: string;
+}
+//type AuthFunc = (AuthParams: AuthParams) => AuthEventReturn;
+
 let auth: Auth;
 let firebaseApp: FirebaseApp;
 let monitoringAuthChange: boolean;
@@ -28,39 +39,59 @@ class AuthService {
         return auth;
     }
 
-    createUser(username: string, password: string) {
-        if (!auth) return;
+    async createUser(AuthParams: AuthParams): Promise<AuthEventReturn> {
+        const response = {
+            ok: true,
+            errorMessage: "",
+        };
 
-        console.log(
-            `Creating user with username: ${username} and password ${password}`
+        if (!auth) {
+            response.ok = false;
+            response.errorMessage = "Auth not yet initialized";
+        }
+
+        const { username, password, callback } = AuthParams;
+
+        await createUserWithEmailAndPassword(auth, username, password).catch(
+            (error) => {
+                response.ok = false;
+                response.errorMessage = error.message;
+                if (error.message.includes("email-already-in-use"))
+                    response.errorMessage =
+                        "Email is already in use, try logging in instead";
+            }
         );
-
-        createUserWithEmailAndPassword(auth, username, password)
-            .then(() => {
-                console.log("User created");
-            })
-            .catch((error) => {
-                console.log(
-                    `User NOT created and error got: ${error.code}: ${error.message}`
-                );
-            });
+        if (response.ok) callback();
+        return response;
     }
 
-    logIn(username: string, password: string) {
-        if (!auth) return;
+    async logIn(AuthParams: AuthParams): Promise<AuthEventReturn> {
+        const response = {
+            ok: true,
+            errorMessage: "",
+        };
 
-        console.log(
-            `Logging in with username: ${username} and password ${password}`
+        if (!auth) {
+            response.ok = false;
+            response.errorMessage = "Auth not yet initialized";
+        }
+
+        const { username, password, callback } = AuthParams;
+
+        await signInWithEmailAndPassword(auth, username, password).catch(
+            (error) => {
+                response.ok = false;
+                response.errorMessage = error.message;
+                if (
+                    error.message.includes("wrong-password") ||
+                    error.message.includes("user-not-found")
+                )
+                    response.errorMessage = "Username or password is incorrect";
+            }
         );
-        signInWithEmailAndPassword(auth, username, password)
-            .then(() => {
-                console.log("User logged in");
-            })
-            .catch((error) => {
-                console.log(
-                    `User NOT logged in and error got: ${error.code}: ${error.message}`
-                );
-            });
+
+        if (response.ok) callback();
+        return response;
     }
 
     logOut() {
@@ -68,8 +99,12 @@ class AuthService {
     }
 
     getAuthState(onStateChange: Dispatch<SetStateAction<User | null>>): void {
-        if (monitoringAuthChange) return;
+        if (monitoringAuthChange) {
+            console.log("Not monitoring again");
+            return;
+        }
 
+        console.log("Monitoring");
         monitoringAuthChange = true;
         onAuthStateChanged(authService.getAuthService(), (user) => {
             console.log("Running onAuthStateChanged");
