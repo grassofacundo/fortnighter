@@ -44,10 +44,8 @@ const WelcomeAnimation: FunctionComponent<thisProps> = ({
     function handleAnimationEnd() {
         if (animationFinished) return;
 
-        console.log("Counting animation");
         animCount.current++;
         if (animCount.current >= fullText.length) {
-            console.log("Animation ended");
             onSetAnimationEnded(true);
             setAnimationFinished(true);
         }

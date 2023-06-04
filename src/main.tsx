@@ -5,7 +5,6 @@ import dbService from "./services/dbService";
 import "./style/_main.scss";
 import authService from "./services/authService";
 
-console.log("Init services");
 dbService.init();
 authService.init(dbService.getApp());
 
