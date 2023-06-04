@@ -51,8 +51,15 @@ body,
 
 p {
     color: var(--textColor);
+    font-family: auto;
 }
 
 button {
     @extend %normal-button;
+}
+
+input[type="text"],
+input[type="mail"],
+input[type="password"] {
+    @extend %normal-input;
 }

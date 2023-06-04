@@ -24,3 +24,27 @@
         box-shadow: 0px 0px 0px 3px;
     }
 }
+
+@mixin inputMixin(
+    $bgColor: transparent,
+    $borderStyle: solid,
+    $borderColor: var(--contrastColor),
+    $borderTopWidth: 0,
+    $borderBottomWidth: 2px,
+    $borderRightWidth: 0,
+    $borderLeftWidth: 0,
+    $textColor: var(--textColor),
+    $padding: 10px
+) {
+    background-color: $bgColor;
+    border: {
+        style: $borderStyle;
+        color: $borderColor;
+        top-width: $borderTopWidth;
+        bottom-width: $borderBottomWidth;
+        right-width: $borderRightWidth;
+        left-width: $borderLeftWidth;
+    }
+    color: $textColor;
+    padding: $padding;
+}

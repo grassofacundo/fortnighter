@@ -13,3 +13,7 @@
         text-decoration: underline;
     }
 }
+
+%normal-input {
+    @include mixins.inputMixin;
+}
