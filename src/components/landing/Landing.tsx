@@ -40,7 +40,14 @@ const Landing: FunctionComponent = () => {
                     </InOutAnim>
                 </>
             )}
-            {logIn && animationEnded && <Body />}
+            {
+                <InOutAnim
+                    inState={logIn && animationEnded}
+                    customClass="bodyInOut"
+                >
+                    <Body />
+                </InOutAnim>
+            }
             {animationEnded && (
                 <footer>
                     <button
