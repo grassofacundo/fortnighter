@@ -7,15 +7,22 @@
     box-sizing: border-box;
 }
 
+html {
+    min-width: 100vw;
+    min-height: 100vh;
+}
+
 html,
 body,
 #root {
     margin: 0;
     padding: 0;
-    width: 100vw;
-    height: 100vh;
-    min-width: 100vw;
-    min-height: 100vh;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    @extend %custom-scroll-bar;
 }
 
 #root {
@@ -44,6 +51,8 @@ body,
         --contrastColor: var(--contrastColor-light);
     }
 
+    --footerHeight: 50px;
+
     display: flex;
     justify-content: center;
     background-color: var(--bgColor);
@@ -62,4 +71,8 @@ input[type="text"],
 input[type="mail"],
 input[type="password"] {
     @extend %normal-input;
+}
+
+.checkbox-label {
+    @extend %normal-checkbox;
 }
