@@ -23,11 +23,13 @@ interface AuthEventReturn {
 let auth: Auth;
 let firebaseApp: FirebaseApp;
 let monitoringAuthChange: boolean;
+let isTrustedDevice: boolean;
 
 class AuthService {
     init(firebaseAppParam: FirebaseApp) {
         firebaseApp = firebaseAppParam;
         this.setAuth();
+        isTrustedDevice = !!localStorage.getItem("fortnighter-trusted-device");
     }
 
     setAuth() {
@@ -109,8 +111,6 @@ class AuthService {
         onAuthStateChanged(authService.getAuthService(), (user) => {
             console.log("Running onAuthStateChanged");
             if (user) {
-                // User is signed in, see docs for a list of available properties
-                // https://firebase.google.com/docs/reference/js/auth.user
                 const uid = user.uid;
                 console.log(uid);
                 onStateChange(user);

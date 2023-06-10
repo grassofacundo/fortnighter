@@ -163,10 +163,24 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
             {isReturningUser && currentUser?.email && (
                 <div className={styles.returningUserForm}>
                     <p>{`Welcome back ${currentUser.email}!`}</p>
-                    <button onClick={() => onLogIn(true)}>
+                    <button
+                        className={styles.thankYouButton}
+                        onClick={() => onLogIn(true)}
+                    >
                         {"Thank you!"}
                     </button>
-                    <button onClick={handleNewUser}>
+                    <label htmlFor="scales" className="checkbox-label">
+                        <input
+                            type="checkbox"
+                            //id="scales"
+                            name="scales"
+                        />
+                        Trust this device
+                    </label>
+                    <button
+                        className={styles.textButton}
+                        onClick={handleNewUser}
+                    >
                         {`I'm not ${currentUser.email}`}
                     </button>
                 </div>
