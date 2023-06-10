@@ -4,12 +4,12 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     width: 100%;
     max-width: 1024px;
     background-color: var(--mainColor);
-    padding-bottom: 50px;
+    padding-bottom: var(--footerHeight);
 
     .loginWrapper {
         width: 100%;
@@ -23,7 +23,8 @@
         width: 100%;
         display: flex;
         justify-content: space-between;
-        height: 50px;
+        height: var(--footerHeight);
+        border-top: 1px var(--contrastColor) solid;
 
         .logOutButton {
             @extend %text-button;

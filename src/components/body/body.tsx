@@ -1,22 +1,13 @@
-import { FunctionComponent, useState } from "react";
-import TimetableWrapper from "../timetable/timetableWrapper";
-import InOutAnim from "../utils/InOutAnim";
+import { FunctionComponent } from "react";
+import Calendar from "../timetable/Calendar";
+import styles from "./body.module.scss";
 
 type thisProps = {};
 
 const Body: FunctionComponent<thisProps> = () => {
-    const [showTimetable, setShowTimetable] = useState<boolean>(false);
-
     return (
-        <div>
-            <button onClick={() => setShowTimetable((prev) => !prev)}>
-                {`${showTimetable ? "Hide" : "Show"} timetable`}
-            </button>
-            <InOutAnim inState={showTimetable}>
-                <div>
-                    <TimetableWrapper></TimetableWrapper>
-                </div>
-            </InOutAnim>
+        <div className={styles.mainBody}>
+            <Calendar></Calendar>
         </div>
     );
 };
