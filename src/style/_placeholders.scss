@@ -17,3 +17,26 @@
 %normal-input {
     @include mixins.inputMixin;
 }
+
+%normal-checkbox {
+    @include mixins.checkboxMixin;
+}
+
+%custom-scroll-bar {
+    @media (hover: hover) {
+        scrollbar-gutter: stable both-edges;
+
+        ::-webkit-scrollbar {
+            width: 2px;
+        }
+
+        ::-webkit-scrollbar-track {
+            box-shadow: inset 0 0 6px var(--mainColor);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--contrastColor);
+            outline: 1px solid var(--contrastColor);
+        }
+    }
+}
