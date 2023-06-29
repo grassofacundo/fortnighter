@@ -6,11 +6,11 @@ import {
     useEffect,
     useState,
 } from "react";
-import styles from "./Login.module.scss";
+import FormManager from "../utils/form/FormManager";
 import AuthContext from "../contexts/AuthContext";
 import authService from "../../services/authService";
-import InOutAnim from "../utils/InOutAnim";
-import Spinner from "../blocks/spinner/Spinner";
+import dbService from "../../services/dbService";
+import styles from "./Login.module.scss";
 
 type LoginProps = {
     onLogIn: Dispatch<SetStateAction<boolean>>;
@@ -19,148 +19,99 @@ type LoginProps = {
 const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
     const currentUser = useContext(AuthContext);
 
-    const [isReturningUser, setIsReturningUser] = useState<boolean>(
-        !!currentUser
-    );
-    const [isRegisteredUser, setIsRegisteredUser] = useState<boolean>(true);
-    const [email, setEmail] = useState<string>("");
-    const [emailSubmitted, setEmailSubmitted] = useState<boolean>(false);
-    const [password, setPassword] = useState<string>("");
-
-    const [error, setError] = useState<boolean>(false);
-    const [errorText, setErrorText] = useState<string>("");
+    const [loggedIn, setLoggedIn] = useState<boolean>(!!currentUser);
+    const [hasAccount, setHasAccount] = useState<boolean>(true);
     const [Loading, setLoading] = useState<boolean>(false);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [trustDevice, setTrustDevice] = useState<boolean>(() =>
+        authService.getIsTrustedDevice()
+    );
 
     function handleNewUser() {
-        setIsRegisteredUser(false);
-        setIsReturningUser(false);
+        setHasAccount(false);
+        setLoggedIn(false);
         onLogIn(false);
         authService.logOut();
     }
 
-    function handleEmailChange(email: string): void {
-        if (emailSubmitted) setEmailSubmitted(false);
-        setEmail(email);
+    function handleOptionChange() {
+        setHasAccount((prevState) => !prevState);
+        setErrorMsg("");
     }
 
-    function validEmail(email: string): boolean {
-        const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        return (
-            email !== null &&
-            email !== "" &&
-            email.length > 3 &&
-            emailRegex.test(email)
-        );
+    function handleTrustDeviceCheck(propTrustDevice: boolean) {
+        if (propTrustDevice) {
+            authService.trustDevice();
+            setTrustDevice(true);
+        } else {
+            authService.untrustDevice();
+            setTrustDevice(false);
+        }
     }
 
-    async function handleSubmit(
-        event: React.FormEvent<HTMLFormElement>
-    ): Promise<void> {
-        event.preventDefault();
+    async function handleSubmit(answers: formAnswersType[]): Promise<void> {
+        const emailAnswer = answers
+            .filter((answer) => answer.id === "email")
+            .at(0);
+        const passwordAnswer = answers
+            .filter((answer) => answer.id === "password")
+            .at(0);
+        const checkboxAnswer = answers
+            .filter((answer) => answer.id === "checkbox")
+            .at(0);
+        const email = emailAnswer?.value as string;
+        const password = passwordAnswer?.value as string;
+        const checkbox = checkboxAnswer?.value as boolean;
 
-        if (!validEmail(email)) {
-            const errorMessage = "Email doesn't have the correct format";
-            const erroredFieldType = "mail";
-            handleError(false, { erroredFieldType, errorMessage });
+        if (!email || !password || checkbox == null) {
+            setErrorMsg("Error on form answers");
             return;
         }
 
-        if (!emailSubmitted && validEmail(email)) {
-            handleError(true);
-            setEmailSubmitted(true);
-            return;
+        if (!hasAccount) {
+            setLoading(true);
+            const responseAuth = await authService.createUser({
+                username: email,
+                password,
+            });
+            if (!responseAuth.ok) {
+                setErrorMsg(responseAuth.errorMessage);
+                return;
+            }
+            const responseDb = await dbService.createUserCollection(email);
+            if (!responseDb.ok) {
+                setErrorMsg(responseDb.errorMessage);
+                return;
+            }
+            if (responseAuth.ok && responseDb.ok) {
+                handleTrustDeviceCheck(checkbox);
+                onLogIn(true);
+            }
+            setLoading(false);
         }
-
-        const passRegex: RegExp =
-            /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
-
-        if (!isRegisteredUser && !passRegex.test(password)) {
-            const errorMessage =
-                "Password must contain 1 lowercase, 1 uppercase, 1 special character and be at least 8 characters long";
-            const erroredFieldType = "password";
-            handleError(false, { erroredFieldType, errorMessage });
-            return;
-        }
-
-        if (emailSubmitted && validEmail(email)) {
-            if (!isRegisteredUser) {
-                setLoading(true);
-                const response = await authService.createUser({
-                    username: email,
-                    password,
-                    callback: () => onLogIn(true),
-                });
-                setLoading(false);
-                if (!response.ok) {
-                    const errorMessage = response.errorMessage;
-                    const erroredFieldType = "mail";
-                    handleError(response.ok, {
-                        erroredFieldType,
-                        errorMessage,
-                    });
-                }
-            } else {
-                setLoading(true);
-                const response = await authService.logIn({
-                    username: email,
-                    password,
-                    callback: () => onLogIn(true),
-                });
-                setLoading(false);
-                if (!response.ok) {
-                    const errorMessage = response.errorMessage;
-                    const erroredFieldType = "mail";
-                    handleError(response.ok, {
-                        erroredFieldType,
-                        errorMessage,
-                    });
-                }
+        if (hasAccount) {
+            setLoading(true);
+            const response = await authService.logIn({
+                username: email,
+                password,
+                callback: () => onLogIn(true),
+            });
+            handleTrustDeviceCheck(checkbox);
+            setLoading(false);
+            if (!response.ok) {
+                setErrorMsg(response.errorMessage);
+                return;
             }
         }
     }
 
-    function handleError(
-        clearError: boolean,
-        error?: { erroredFieldType: string; errorMessage: string }
-    ) {
-        if (clearError) setError(false);
-
-        if (!error?.erroredFieldType || !error?.errorMessage) return;
-        const { erroredFieldType, errorMessage } = error;
-        const errorInput = document.querySelector(`[type=${erroredFieldType}]`);
-        if (!errorInput) return;
-        //Get input position
-        const { offsetTop, offsetWidth, offsetHeight } = errorInput as any;
-        const top = offsetTop - offsetHeight / 2 - 10;
-        const right = offsetWidth - 10;
-
-        const loginContainer = document.querySelector("#loginContainer") as any;
-        if (!loginContainer) return;
-        loginContainer.style.setProperty("--errorTop", `${top}px`);
-        loginContainer.style.setProperty("--errorRight", `${right}px`);
-
-        setErrorText(errorMessage);
-        setError(true);
-    }
-
-    function getSubmitButtonText(): string {
-        if (!emailSubmitted) {
-            return "Submit email";
-        } else if (emailSubmitted && isRegisteredUser) {
-            return "Log in";
-        } else {
-            return "Sign up";
-        }
-    }
-
     useEffect(() => {
-        setIsReturningUser(currentUser !== null);
+        setLoggedIn(currentUser !== null);
     }, [currentUser]);
 
     return (
         <div id="loginContainer" className={styles.loginContainer}>
-            {isReturningUser && currentUser?.email && (
+            {loggedIn && currentUser?.email && (
                 <div className={styles.returningUserForm}>
                     <p>{`Welcome back ${currentUser.email}!`}</p>
                     <button
@@ -169,14 +120,19 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
                     >
                         {"Thank you!"}
                     </button>
-                    <label htmlFor="scales" className="checkbox-label">
+
+                    <label htmlFor="trust-device" className="checkbox-label">
                         <input
                             type="checkbox"
-                            //id="scales"
-                            name="scales"
+                            name="trust-device"
+                            onChange={(e) =>
+                                handleTrustDeviceCheck(e.target.checked)
+                            }
+                            checked={trustDevice}
                         />
                         Trust this device
                     </label>
+
                     <button
                         className={styles.textButton}
                         onClick={handleNewUser}
@@ -186,52 +142,39 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
                 </div>
             )}
 
-            {!isReturningUser && emailSubmitted && (
-                <button
-                    onClick={() => {
-                        setIsRegisteredUser((prevState) => !prevState);
-                        handleError(true);
-                    }}
-                >
-                    {isRegisteredUser
-                        ? "I don't have an account yet"
-                        : "I have an account"}
-                </button>
-            )}
-
-            {!isReturningUser && (
-                <form onSubmit={handleSubmit}>
-                    {!isReturningUser && (
-                        <input
-                            type="mail"
-                            placeholder="email"
-                            onChange={(e) => {
-                                handleEmailChange(e.target.value);
-                                handleError(true);
-                            }}
-                        ></input>
-                    )}
-                    {!isReturningUser && emailSubmitted && (
-                        <input
-                            type="password"
-                            placeholder="password"
-                            onChange={(e) => {
-                                setPassword(e.target.value);
-                                handleError(true);
-                            }}
-                        ></input>
-                    )}
-                    <button type="submit">
-                        {Loading ? <Spinner /> : getSubmitButtonText()}
+            {!loggedIn && (
+                <>
+                    <button onClick={handleOptionChange}>
+                        {hasAccount
+                            ? "I don't have an account yet"
+                            : "I have an account"}
                     </button>
-                </form>
+                    <FormManager
+                        inputs={[
+                            {
+                                type: "mail",
+                                id: "email",
+                                placeholder: "email",
+                                isOptional: false,
+                            },
+                            {
+                                type: "password",
+                                id: "password",
+                                placeholder: "password",
+                                isOptional: false,
+                            },
+                            {
+                                type: "checkbox",
+                                id: "checkbox",
+                            },
+                        ]}
+                        submitCallback={handleSubmit}
+                        submitText={hasAccount ? "Log in" : "Sign in"}
+                        Loading={Loading}
+                        serverErrorMsg={errorMsg}
+                    />
+                </>
             )}
-
-            <InOutAnim inState={error} customClass={styles.errorMessageWrapper}>
-                <div className={styles.errorPorUp}>
-                    <p className={styles.message}>{errorText}</p>
-                </div>
-            </InOutAnim>
         </div>
     );
 };
