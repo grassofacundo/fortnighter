@@ -3,7 +3,7 @@ import AuthContext from "../contexts/AuthContext";
 import WelcomeAnimation from "../blocks/welcomeAnimation/WelcomeAnimation";
 import InOutAnim from "../utils/InOutAnim";
 import Login from "../login/Login";
-import Body from "../body/body";
+import Dashboard from "../dashboard/Dashboard";
 import styles from "./Landing.module.scss";
 import ThemeContext from "../contexts/ThemeContext";
 import authService from "../../services/authService";
@@ -19,9 +19,14 @@ const Landing: FunctionComponent = () => {
     const [animationEnded, setAnimationEnded] = useState<boolean>(false);
 
     useEffect(() => {
-        console.log("Checking logIn and currentUser");
-        if (logIn && !currentUser) setLogIn(false);
+        if (logIn && !currentUser) {
+            setLogIn(false);
+        }
     }, [currentUser, logIn]);
+
+    useEffect(() => {
+        if (authService.getIsTrustedDevice() && currentUser) setLogIn(true);
+    }, [animationEnded]);
 
     return (
         <div className={styles.appContainer}>
@@ -45,7 +50,7 @@ const Landing: FunctionComponent = () => {
                     inState={logIn && animationEnded}
                     customClass="bodyInOut"
                 >
-                    <Body />
+                    <Dashboard />
                 </InOutAnim>
             }
             {animationEnded && (
