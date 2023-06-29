@@ -46,9 +46,9 @@ const Dashboard: FunctionComponent<thisProps> = () => {
         setLoading(false);
     }
 
-    function getSelectedPosition(): jobPosition | void {
+    /*function getSelectedPosition(): jobPosition | void {
         return jobPositionList.find((job) => job.id === selectedPosition);
-    }
+    }*/
 
     useEffect(() => {
         dbService.getJobPositions().then((response) => {

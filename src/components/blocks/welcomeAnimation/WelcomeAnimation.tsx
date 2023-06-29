@@ -29,7 +29,10 @@ const WelcomeAnimation: FunctionComponent<thisProps> = ({
     }
 
     function getDelay(): string {
-        const delayPool = fullText.split("").map((x, i) => i + 1);
+        const delayPool = fullText.split("").map((x, i) => {
+            return i + 1;
+            console.log(x);
+        });
         const filteredDelayPool = delayPool.filter(
             (delay) => !usedDelay.current.includes(delay)
         );

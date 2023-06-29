@@ -1,5 +1,5 @@
 import { FunctionComponent } from "react";
-import styles from "./Summary.module.scss";
+//import styles from "./Summary.module.scss";
 
 type thisProps = {};
 

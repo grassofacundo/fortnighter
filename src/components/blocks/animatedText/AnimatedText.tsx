@@ -1,4 +1,4 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent } from "react";
 import style from "./AnimatedText.module.scss";
 
 type thisProps = {

@@ -31,7 +31,7 @@ export const ThemeProvider: FunctionComponent<thisProps> = ({ children }) => {
     }
 
     function toggleTheme(): void {
-        const root = document.querySelector("#root");
+        const root = document.querySelector("#root") as any;
         if (!root) return;
 
         const cssVars = ["bgColor", "mainColor", "textColor", "contrastColor"];
