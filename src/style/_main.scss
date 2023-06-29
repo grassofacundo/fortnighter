@@ -58,9 +58,15 @@ body {
     background-color: var(--bgColor);
 }
 
-p {
+p,
+h1,
+h2 {
     color: var(--textColor);
+}
+
+p {
     font-family: auto;
+    margin: 0;
 }
 
 button {
