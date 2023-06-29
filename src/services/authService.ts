@@ -8,17 +8,13 @@ import {
     signInWithEmailAndPassword,
 } from "firebase/auth";
 import { Dispatch, SetStateAction } from "react";
+import dbService from "./dbService";
 
 interface AuthParams {
     username: string;
     password: string;
     callback?: SetStateAction<any>;
 }
-interface AuthEventReturn {
-    ok: boolean;
-    errorMessage: string;
-}
-//type AuthFunc = (AuthParams: AuthParams) => AuthEventReturn;
 
 let auth: Auth;
 let firebaseApp: FirebaseApp;
@@ -26,10 +22,12 @@ let monitoringAuthChange: boolean;
 let isTrustedDevice: boolean;
 
 class AuthService {
+    storageKey = "fortnighter-trusted-device";
+
     init(firebaseAppParam: FirebaseApp) {
         firebaseApp = firebaseAppParam;
         this.setAuth();
-        isTrustedDevice = !!localStorage.getItem("fortnighter-trusted-device");
+        isTrustedDevice = !!this.getILocalStorageTrustedDevice();
     }
 
     setAuth() {
@@ -41,7 +39,27 @@ class AuthService {
         return auth;
     }
 
-    async createUser(AuthParams: AuthParams): Promise<AuthEventReturn> {
+    trustDevice() {
+        isTrustedDevice = true;
+        localStorage.setItem(this.storageKey, isTrustedDevice.toString());
+    }
+
+    untrustDevice() {
+        localStorage.removeItem(this.storageKey);
+        isTrustedDevice = false;
+    }
+
+    getILocalStorageTrustedDevice() {
+        const IsTrustedOnLocalStorage = localStorage.getItem(this.storageKey);
+
+        return IsTrustedOnLocalStorage;
+    }
+
+    getIsTrustedDevice(): boolean {
+        return !!isTrustedDevice;
+    }
+
+    async createUser(AuthParams: AuthParams): Promise<FirebaseEventReturn> {
         const response = {
             ok: true,
             errorMessage: "",
@@ -54,20 +72,22 @@ class AuthService {
 
         const { username, password, callback } = AuthParams;
 
-        await createUserWithEmailAndPassword(auth, username, password).catch(
-            (error) => {
+        await createUserWithEmailAndPassword(auth, username, password)
+            .then(({ user }) => {
+                if (user.email) dbService.setCollectionName(user.email);
+            })
+            .catch((error) => {
                 response.ok = false;
                 response.errorMessage = error.message;
                 if (error.message.includes("email-already-in-use"))
                     response.errorMessage =
                         "Email is already in use, try logging in instead";
-            }
-        );
-        if (response.ok) callback();
+            });
+        if (response.ok && callback) callback();
         return response;
     }
 
-    async logIn(AuthParams: AuthParams): Promise<AuthEventReturn> {
+    async logIn(AuthParams: AuthParams): Promise<FirebaseEventReturn> {
         const response = {
             ok: true,
             errorMessage: "",
@@ -80,8 +100,11 @@ class AuthService {
 
         const { username, password, callback } = AuthParams;
 
-        await signInWithEmailAndPassword(auth, username, password).catch(
-            (error) => {
+        await signInWithEmailAndPassword(auth, username, password)
+            .then(({ user }) => {
+                if (user.email) dbService.setCollectionName(user.email);
+            })
+            .catch((error) => {
                 response.ok = false;
                 response.errorMessage = error.message;
                 if (
@@ -89,34 +112,28 @@ class AuthService {
                     error.message.includes("user-not-found")
                 )
                     response.errorMessage = "Username or password is incorrect";
-            }
-        );
+            });
 
         if (response.ok) callback();
         return response;
     }
 
     logOut() {
+        dbService.clearCollectionName();
         auth.signOut();
     }
 
     getAuthState(onStateChange: Dispatch<SetStateAction<User | null>>): void {
-        if (monitoringAuthChange) {
-            console.log("Not monitoring again");
-            return;
-        }
+        if (monitoringAuthChange) return;
 
-        console.log("Monitoring");
         monitoringAuthChange = true;
         onAuthStateChanged(authService.getAuthService(), (user) => {
-            console.log("Running onAuthStateChanged");
             if (user) {
-                const uid = user.uid;
-                console.log(uid);
+                if (user.email) dbService.setCollectionName(user.email);
                 onStateChange(user);
                 // ...
             } else {
-                console.log("Not signed in");
+                dbService.clearCollectionName();
                 onStateChange(null);
             }
         });
