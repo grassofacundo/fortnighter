@@ -1,0 +1,1 @@
+interface checkbox extends input {}
