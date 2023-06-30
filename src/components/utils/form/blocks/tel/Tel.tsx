@@ -4,16 +4,11 @@ interface thisProps extends inputProp {
     fields: tel;
 }
 
-const Tel: FunctionComponent<thisProps> = ({
-    fields,
-    formAnswers,
-    onUpdateAnswer,
-}) => {
-    const { required, id, placeholder, maxLength, label } = fields;
-    const isRequired = required != null ? required : true;
+const Tel: FunctionComponent<thisProps> = ({ fields, onUpdateAnswer }) => {
+    const { isOptional, id, placeholder, maxLength, label } = fields;
 
     const validInput = ({ target }: ChangeEvent<HTMLInputElement>) => {
-        onHandleAddAnswer(target.id, target.value);
+        onUpdateAnswer({ id: target.id, value: target.value, error: "" });
     };
 
     return (
@@ -22,7 +17,7 @@ const Tel: FunctionComponent<thisProps> = ({
             <input
                 type="text"
                 id={id}
-                required={isRequired}
+                required={!isOptional}
                 placeholder={placeholder}
                 maxLength={maxLength}
                 onChange={(target) => validInput(target)}

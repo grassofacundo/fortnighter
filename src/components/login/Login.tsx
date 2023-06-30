@@ -94,9 +94,11 @@ const Login: FunctionComponent<LoginProps> = ({ onLogIn }) => {
             const response = await authService.logIn({
                 username: email,
                 password,
-                callback: () => onLogIn(true),
             });
-            handleTrustDeviceCheck(checkbox);
+            if (response.ok) {
+                onLogIn(true);
+                handleTrustDeviceCheck(checkbox);
+            }
             setLoading(false);
             if (!response.ok) {
                 setErrorMsg(response.errorMessage);

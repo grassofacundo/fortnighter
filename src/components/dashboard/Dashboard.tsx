@@ -61,7 +61,7 @@ const Dashboard: FunctionComponent<thisProps> = () => {
                 setJobPositionList([...jobPositionList, jobPosition]);
             }
         });
-    }, []);
+    }, [jobPositionList]);
 
     useEffect(() => {
         const selected = jobPositionList.find(

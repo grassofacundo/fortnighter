@@ -4,15 +4,11 @@ interface thisProps extends inputProp {
     fields: radio;
 }
 
-const Radio: FunctionComponent<thisProps> = ({
-    fields,
-    formBody,
-    setFormBody,
-}) => {
-    const { required, radioElem, title, id, label } = fields;
+const Radio: FunctionComponent<thisProps> = ({ fields, onUpdateAnswer }) => {
+    const { isOptional, radioElem, title, id, label } = fields;
 
     const validInput = ({ target }: ChangeEvent<HTMLInputElement>) => {
-        setFormBody({ ...formBody, [id]: target.value });
+        onUpdateAnswer({ id: target.id, value: target.value, error: "" });
     };
 
     return (
@@ -27,7 +23,7 @@ const Radio: FunctionComponent<thisProps> = ({
                         id={elem.id}
                         name={elem.name}
                         value={elem.value}
-                        required={required != null ? required : true}
+                        required={!isOptional}
                         onChange={(target) => validInput(target)}
                     />
                 </Fragment>

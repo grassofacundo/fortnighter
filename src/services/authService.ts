@@ -97,7 +97,7 @@ class AuthService {
             response.errorMessage = "Auth not yet initialized";
         }
 
-        const { username, password, callback } = AuthParams;
+        const { username, password } = AuthParams;
 
         await signInWithEmailAndPassword(auth, username, password)
             .then(({ user }) => {
@@ -112,8 +112,6 @@ class AuthService {
                 )
                     response.errorMessage = "Username or password is incorrect";
             });
-
-        if (response.ok) callback();
         return response;
     }
 

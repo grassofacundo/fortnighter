@@ -6,14 +6,12 @@ interface thisProps extends inputProp {
 
 const InputNumber: FunctionComponent<thisProps> = ({
     fields,
-    formBody,
     onUpdateAnswer,
 }) => {
-    const { required, id, placeholder, /*maxLength,*/ label } = fields;
-    const isRequired = required != null ? required : true;
+    const { isOptional, id, placeholder, /*maxLength,*/ label } = fields;
 
     const validInput = ({ target }: ChangeEvent<HTMLInputElement>) => {
-        onHandleAddAnswer(target.id, target.value);
+        onUpdateAnswer({ id: target.id, value: target.value, error: "" });
     };
 
     return (
@@ -23,7 +21,7 @@ const InputNumber: FunctionComponent<thisProps> = ({
                 type="number"
                 id={id}
                 placeholder={placeholder}
-                required={isRequired}
+                required={!isOptional}
                 onChange={(target) => validInput(target)}
             ></input>
         </div>

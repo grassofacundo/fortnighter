@@ -3,7 +3,7 @@ import Form from "./Form";
 
 type thisProps = {
     inputs: inputField[];
-    submitCallback(arg0: any): Promise<void>;
+    submitCallback: <T extends unknown[], R>(...args: T) => R | void;
     Loading?: boolean;
     submitText?: string;
     serverErrorMsg?: string;
