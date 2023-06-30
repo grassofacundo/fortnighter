@@ -46,3 +46,5 @@ interface inputProp {
     formAnswers: formAnswersType[];
     onUpdateAnswer: (answer: formAnswersType) => void;
 }
+
+type formCallback = (answers: formAnswersType[]) => Promise<void>;

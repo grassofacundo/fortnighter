@@ -21,13 +21,13 @@ import Checkbox from "./blocks/checkbox/Checkbox";
 
 type thisProps = {
     inputs: inputField[];
-    submitCallback: <T extends unknown[], R>(...args: T) => R | void;
+    submitCallback: formCallback;
     Loading?: boolean;
     updateAnswer: (answer: formAnswersType) => void;
     formAnswers: formAnswersType[];
     submitText: string;
     serverErrorMsg?: string;
-    resetServerError: <T extends unknown[], R>(...args: T) => R | void;
+    resetServerError: () => void;
 };
 
 const Form: FunctionComponent<thisProps> = ({
