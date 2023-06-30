@@ -4,12 +4,13 @@ import {
     useEffect,
     FormEvent,
     useRef,
+    useMemo,
 } from "react";
 import { createPortal } from "react-dom";
 import InOutAnim from "../InOutAnim";
 import Text from "./blocks/text/Text";
 import InputNumber from "./blocks/number/InputNumber";
-import InputDate from "./blocks/date/DateInput";
+//import InputDate from "./blocks/date/DateInput";
 import Tel from "./blocks/tel/Tel";
 import Password from "./blocks/password/Password";
 import Mail from "./blocks/mail/Mail";
@@ -20,13 +21,13 @@ import Checkbox from "./blocks/checkbox/Checkbox";
 
 type thisProps = {
     inputs: inputField[];
-    submitCallback: Function;
+    submitCallback: <T extends unknown[], R>(...args: T) => R | void;
     Loading?: boolean;
     updateAnswer: (answer: formAnswersType) => void;
     formAnswers: formAnswersType[];
     submitText: string;
     serverErrorMsg?: string;
-    resetServerError: Function;
+    resetServerError: <T extends unknown[], R>(...args: T) => R | void;
 };
 
 const Form: FunctionComponent<thisProps> = ({
@@ -40,7 +41,7 @@ const Form: FunctionComponent<thisProps> = ({
     resetServerError,
 }) => {
     const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
-    const [error, setError] = useState<error | null>(null);
+    const [errorMsg, setErrorMsg] = useState("");
     const [showError, setShowError] = useState<boolean>(false);
     const formRef = useRef<HTMLFormElement>(null);
     const errorPorUpRef = useRef<HTMLDivElement>(null);
@@ -51,11 +52,11 @@ const Form: FunctionComponent<thisProps> = ({
     }
 
     function clearErrors() {
-        setError(null);
+        //setError(null);
         resetServerError();
     }
 
-    function getEmptyAnswers(formAnswers: formAnswersType[]): inputField[] {
+    const getEmptyAnswers = useMemo((): inputField[] => {
         const requiredAnswers = inputs.filter((input) => !input.isOptional);
         const unansweredFields = inputs.filter(
             (input) => !formAnswers.some((answer) => answer.id === input.id)
@@ -64,20 +65,18 @@ const Form: FunctionComponent<thisProps> = ({
             unansweredFields.some((unanswered) => unanswered.id === input.id)
         );
         return unansweredAndRequired;
-    }
+    }, [formAnswers, inputs]);
 
-    function hasFormErrors() {
+    const hasFormErrors = useMemo(() => {
         const erroredFields = formAnswers.filter((answer) => answer.error);
-        return (
-            getEmptyAnswers(formAnswers).length > 0 || erroredFields.length > 0
-        );
-    }
+        return getEmptyAnswers.length > 0 || erroredFields.length > 0;
+    }, [formAnswers, getEmptyAnswers]);
 
     function hasServerError() {
         return serverErrorMsg;
     }
 
-    function handleError(): void {
+    function getError(): error | void {
         const errorObj: error = {
             message: "",
             field: null,
@@ -90,7 +89,7 @@ const Form: FunctionComponent<thisProps> = ({
         }
 
         //First, check if there is any empty field
-        const emptyFields = getEmptyAnswers(formAnswers);
+        const emptyFields = getEmptyAnswers;
         if (!errorObj.message && emptyFields.length > 0) {
             errorObj.message = "Please, complete this field";
 
@@ -113,8 +112,7 @@ const Form: FunctionComponent<thisProps> = ({
         }
 
         //Lastly, set coordinates and update error state
-        setError(errorObj);
-        if (errorObj.message && errorObj.field) setShowError(true);
+        return errorObj;
     }
 
     function setCoordinates(field: HTMLElement | null): void {
@@ -134,8 +132,8 @@ const Form: FunctionComponent<thisProps> = ({
     function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        if (hasFormErrors() || hasServerError()) {
-            handleError();
+        if (hasFormErrors || hasServerError()) {
+            setShowError(true);
             return;
         }
 
@@ -144,16 +142,22 @@ const Form: FunctionComponent<thisProps> = ({
 
     //Adjust error pop up position
     useEffect(() => {
-        if (showError && error) setCoordinates(error.field);
-    }, [showError, error]);
+        if (showError) {
+            const error = getError();
+            if (error) {
+                setCoordinates(error.field);
+                setErrorMsg(error.message);
+            }
+        }
+    }, [showError]);
 
     //Check if form is ready for submit
     useEffect(() => {
-        setSubmitEnabled(!hasFormErrors() && !Loading);
-    }, [formAnswers, inputs]);
+        setSubmitEnabled(!hasFormErrors && !Loading);
+    }, [formAnswers, inputs, Loading, hasFormErrors]);
 
     useEffect(() => {
-        if (serverErrorMsg) handleError();
+        if (serverErrorMsg) setShowError(true);
     }, [serverErrorMsg]);
 
     return (
@@ -173,7 +177,7 @@ const Form: FunctionComponent<thisProps> = ({
                                     <p>{inputTitle.text}</p>
                                 </div>
                             );*/
-                        case "text":
+                        case "text": {
                             const inputText = inputFields as text;
                             return (
                                 <Text
@@ -183,7 +187,8 @@ const Form: FunctionComponent<thisProps> = ({
                                     onUpdateAnswer={updateAnswerAndHideError}
                                 />
                             );
-                        case "number":
+                        }
+                        case "number": {
                             const inputNumber = inputFields as text;
                             return (
                                 <InputNumber
@@ -193,7 +198,8 @@ const Form: FunctionComponent<thisProps> = ({
                                     onUpdateAnswer={updateAnswerAndHideError}
                                 />
                             );
-                        case "customDate":
+                        }
+                        /*case "customDate": {
                             const inputDate = inputFields as customDate;
                             return (
                                 <InputDate
@@ -203,7 +209,8 @@ const Form: FunctionComponent<thisProps> = ({
                                     onUpdateAnswer={updateAnswerAndHideError}
                                 />
                             );
-                        case "tel":
+                        }*/
+                        case "tel": {
                             const inputTel = inputFields as tel;
                             return (
                                 <Tel
@@ -213,7 +220,8 @@ const Form: FunctionComponent<thisProps> = ({
                                     onUpdateAnswer={updateAnswerAndHideError}
                                 />
                             );
-                        case "password":
+                        }
+                        case "password": {
                             const inputPassword = inputFields as password;
                             return (
                                 <Password
@@ -223,7 +231,8 @@ const Form: FunctionComponent<thisProps> = ({
                                     onUpdateAnswer={updateAnswerAndHideError}
                                 />
                             );
-                        case "mail":
+                        }
+                        case "mail": {
                             const inputMail = inputFields as mail;
                             return (
                                 <Mail
@@ -233,7 +242,8 @@ const Form: FunctionComponent<thisProps> = ({
                                     onUpdateAnswer={updateAnswerAndHideError}
                                 />
                             );
-                        case "radio":
+                        }
+                        case "radio": {
                             const inputRadio = inputFields as radio;
                             return (
                                 <Radio
@@ -243,7 +253,8 @@ const Form: FunctionComponent<thisProps> = ({
                                     onUpdateAnswer={updateAnswerAndHideError}
                                 />
                             );
-                        case "checkbox":
+                        }
+                        case "checkbox": {
                             const inputCheckbox = inputFields as checkbox;
                             return (
                                 <Checkbox
@@ -253,18 +264,18 @@ const Form: FunctionComponent<thisProps> = ({
                                     onUpdateAnswer={updateAnswerAndHideError}
                                 />
                             );
-
+                        }
                         default:
                             break;
                     }
                 })}
-                {!hasFormErrors() && (
+                {!hasFormErrors && (
                     <button type="submit" disabled={!submitEnabled}>
                         {Loading ? <Spinner /> : submitText}
                     </button>
                 )}
-                {hasFormErrors() && (
-                    <button type="button" onClick={() => handleError()}>
+                {hasFormErrors && (
+                    <button type="button" onClick={() => setShowError(true)}>
                         {submitText}
                     </button>
                 )}
@@ -276,7 +287,7 @@ const Form: FunctionComponent<thisProps> = ({
                     onExitEvent={() => clearErrors()}
                 >
                     <div className={styles.errorPorUp} ref={errorPorUpRef}>
-                        <p className={styles.message}>{error?.message}</p>
+                        <p className={styles.message}>{errorMsg}</p>
                     </div>
                 </InOutAnim>,
                 document.querySelector("#root") ?? document.body

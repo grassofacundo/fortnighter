@@ -10,7 +10,7 @@ const Calendar: FunctionComponent<thisProps> = ({ endDate }) => {
     const [isFortnight, setIsFortnight] = useState<boolean>(true);
 
     function setDays(): Date[] {
-        let lastDate: Date = endDate ?? new Date();
+        const lastDate: Date = endDate ?? new Date();
         const daysNum = isFortnight ? 14 : 7;
         const days = Array(daysNum);
         for (let i = daysNum; i > 0; i--) {

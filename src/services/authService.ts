@@ -13,7 +13,7 @@ import dbService from "./dbService";
 interface AuthParams {
     username: string;
     password: string;
-    callback?: SetStateAction<any>;
+    //callback?: SetStateAction;
 }
 
 let auth: Auth;
@@ -70,7 +70,7 @@ class AuthService {
             response.errorMessage = "Auth not yet initialized";
         }
 
-        const { username, password, callback } = AuthParams;
+        const { username, password } = AuthParams;
 
         await createUserWithEmailAndPassword(auth, username, password)
             .then(({ user }) => {
@@ -83,7 +83,6 @@ class AuthService {
                     response.errorMessage =
                         "Email is already in use, try logging in instead";
             });
-        if (response.ok && callback) callback();
         return response;
     }
 

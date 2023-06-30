@@ -6,7 +6,7 @@ import dbService from "../../services/dbService";
 import stringService from "../../services/stringService";
 import Summary from "../summary/Summary";
 
-type thisProps = {};
+type thisProps = unknown;
 
 const Dashboard: FunctionComponent<thisProps> = () => {
     const [jobPositionList, setJobPositionList] = useState<jobPosition[]>([]);

@@ -21,8 +21,8 @@ const WelcomeAnimation: FunctionComponent<thisProps> = ({
     const usedDelay = useRef<number[]>([]);
 
     function makeCharArray(fullText: string): string[] {
-        let charArray: string[] = [];
-        for (let i: number = 0; i < fullText.length; i++) {
+        const charArray: string[] = [];
+        for (let i = 0; i < fullText.length; i++) {
             charArray.push(fullText[i]);
         }
         return charArray;

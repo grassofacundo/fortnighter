@@ -1,7 +1,7 @@
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { getFirestore, setDoc, doc, getDoc } from "firebase/firestore";
 
-const firebaseConfig: Object = {
+const firebaseConfig = {
     apiKey: "AIzaSyAWwW7h10kdLmLvGsE1NSry3FmqknGeAQU",
     authDomain: "fortnighter.firebaseapp.com",
     projectId: "fortnighter",

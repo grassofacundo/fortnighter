@@ -3,7 +3,7 @@ import Form from "./Form";
 
 type thisProps = {
     inputs: inputField[];
-    submitCallback: Function;
+    submitCallback(arg0: any): Promise<void>;
     Loading?: boolean;
     submitText?: string;
     serverErrorMsg?: string;
@@ -78,7 +78,7 @@ const FormManager: FunctionComponent<thisProps> = ({
     function fieldsReducer(formAnswers: formAnswersType[], action: any) {
         //Eliminate possible duplicates IDs
         let index = 0;
-        let duplicatedAnswers = [];
+        const duplicatedAnswers = [];
         const length = formAnswers.length;
         for (let i = 0; i < length - 1; i++) {
             for (let j = i + 1; j < length; j++) {
@@ -88,7 +88,7 @@ const FormManager: FunctionComponent<thisProps> = ({
                 }
             }
         }
-        let sanitizedAnswers: formAnswersType[] = JSON.parse(
+        const sanitizedAnswers: formAnswersType[] = JSON.parse(
             JSON.stringify(formAnswers)
         );
         if (index > 0) {

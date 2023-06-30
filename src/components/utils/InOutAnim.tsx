@@ -6,7 +6,7 @@ type thisProps = {
     children: ReactNode;
     unmountOnExit?: boolean;
     customClass?: CSSModuleClasses[string];
-    onExitEvent?: any;
+    onExitEvent?: <T extends unknown[], R>(...args: T) => R | void;
 };
 
 const duration = 300;
@@ -16,7 +16,7 @@ const InOutAnim: FunctionComponent<thisProps> = ({
     children,
     unmountOnExit = true,
     customClass,
-    onExitEvent = () => {},
+    onExitEvent,
 }) => {
     const nodeRef = useRef(null);
     return (

@@ -9,7 +9,7 @@ const InputPassword: FunctionComponent<thisProps> = ({
     onUpdateAnswer,
 }) => {
     const { id, label, placeholder, isOptional } = fields;
-    const passRegex: RegExp =
+    const passRegex =
         /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
     function validInput({ target }: ChangeEvent<HTMLInputElement>) {

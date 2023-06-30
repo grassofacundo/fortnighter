@@ -13,8 +13,7 @@ const InputText: FunctionComponent<thisProps> = ({
     function handleInput({ target }: ChangeEvent<HTMLInputElement>) {
         let error = "";
 
-        if (!typeof target.value.match(/^[a-zA-Z\s]*$/))
-            error = "Should be only text";
+        if (!target.value.match(/^[a-zA-Z\s]*$/)) error = "Should be only text";
         if (!error && min && target.value.length < min)
             error = `Text should be at least ${min} characters`;
         if (!error && max && target.value.length > max)

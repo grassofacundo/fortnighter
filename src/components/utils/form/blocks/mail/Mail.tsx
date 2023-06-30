@@ -8,7 +8,7 @@ const Mail: FunctionComponent<thisProps> = ({ fields, onUpdateAnswer }) => {
     const { id, placeholder, label, isOptional } = fields;
 
     function isMailValid(email: string): boolean {
-        const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         return (
             email !== null &&

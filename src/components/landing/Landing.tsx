@@ -25,8 +25,9 @@ const Landing: FunctionComponent = () => {
     }, [currentUser, logIn]);
 
     useEffect(() => {
-        if (authService.getIsTrustedDevice() && currentUser) setLogIn(true);
-    }, [animationEnded]);
+        if (animationEnded && authService.getIsTrustedDevice() && currentUser)
+            setLogIn(true);
+    }, [animationEnded, currentUser]);
 
     return (
         <div className={styles.appContainer}>
